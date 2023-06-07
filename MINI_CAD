@@ -1,0 +1,75 @@
+from tkinter import *
+
+class DrawingApp:
+    def __init__(self, master):
+        self.master = master
+        self.master.title("Aplicación de Dibujo")
+        self.canvas = Canvas(self.master, width=800, height=600)
+        self.canvas.pack()
+        self.shape = None
+        self.start_x = 0
+        self.start_y = 0
+        self.canvas.bind("<Button-1>", self.start_drawing)
+        self.canvas.bind("<B1-Motion>", self.draw)
+
+        self.shape_var = StringVar()
+        self.shape_var.set("Línea")
+
+        self.shape_label = Label(self.master, text="Forma:")
+        self.shape_label.pack()
+
+        self.shape_options = OptionMenu(self.master, self.shape_var, "Línea", "Cuadrado", "Triángulo", "Rectángulo")
+        self.shape_options.pack()
+
+        self.scale_label = Label(self.master, text="Factor de Escala:")
+        self.scale_label.pack()
+
+        self.scale_factor_entry = Entry(self.master)
+        self.scale_factor_entry.pack()
+
+        self.scale_button = Button(self.master, text="Escalar", command=self.scale_shape)
+        self.scale_button.pack()
+
+        self.translate_label = Label(self.master, text="Traslación:")
+        self.translate_label.pack()
+
+        self.translate_x_entry = Entry(self.master)
+        self.translate_x_entry.pack()
+
+        self.translate_y_entry = Entry(self.master)
+        self.translate_y_entry.pack()
+
+        self.translate_button = Button(self.master, text="Trasladar", command=self.translate_shape)
+        self.translate_button.pack()
+
+    def start_drawing(self, event):
+        self.start_x = event.x
+        self.start_y = event.y
+
+    def draw(self, event):
+        if self.shape:
+            self.canvas.delete(self.shape)
+
+        shape_type = self.shape_var.get()
+
+        if shape_type == "Línea":
+            self.shape = self.canvas.create_line(self.start_x, self.start_y, event.x, event.y)
+        elif shape_type == "Cuadrado":
+            self.shape = self.canvas.create_rectangle(self.start_x, self.start_y, event.x, event.y)
+        elif shape_type == "Triángulo":
+            self.shape = self.canvas.create_polygon(self.start_x, self.start_y, event.x, event.y, self.start_x, event.y)
+        elif shape_type == "Rectángulo":
+            self.shape = self.canvas.create_rectangle(self.start_x, self.start_y, event.x, event.y)
+
+    def scale_shape(self):
+        scale_factor = float(self.scale_factor_entry.get())
+        self.canvas.scale(self.shape, self.start_x, self.start_y, scale_factor, scale_factor)
+
+    def translate_shape(self):
+        dx = int(self.translate_x_entry.get())
+        dy = int(self.translate_y_entry.get())
+        self.canvas.move(self.shape, dx, dy)
+
+root = Tk()
+app = DrawingApp(root)
+root.mainloop()
